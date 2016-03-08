@@ -1,0 +1,25 @@
+html,body {
+    height:100vh;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding-top: 00px;
+}
+/*
+#wrapper {
+  height: 100%;
+  overflow: auto;
+}
+*/
+.container .row .col-md-6 {
+    height: 100vh;
+    overflow: auto;
+}
+
+.boards {
+    margin-top: 10px;
+}
+
+/*.board {*/
+    /*width: 500px;*/
+    /*height: 1000px;*/
+/*}*/
