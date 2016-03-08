@@ -19,14 +19,17 @@ A given rule - for example "rule 70" is made from bits:
 Each of the bits decide whether a bit will be set in the next iteration.
 
 Here is a simple mapping of those bits to the upper row setting:
-Bit 0 -> 000
-Bit 1 -> 001
-Bit 2 -> 010
-Bit 3 -> 011
-Bit 4 -> 100
-Bit 5 -> 101
-Bit 6 -> 110
-Bit 7 -> 111
+
+* Bit 0 -> 000
+* Bit 1 -> 001
+* Bit 2 -> 010
+* Bit 3 -> 011
+* Bit 4 -> 100
+* Bit 5 -> 101
+* Bit 6 -> 110
+* Bit 7 -> 111
+
 
 Here for "rule 70" bits 1, 2 and 6 are set.
+
 So for a given cell if upper left, upper and upper right cells form one of this combination: 001, 010, 110 - the cell is set. Otherwise it is not.
