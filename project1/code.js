@@ -1,29 +1,32 @@
-var DEFAULT_RULE = 101;
+var DEFAULT_RULE = "110";
+var DEFAULT_DELAY = "75";
 
-var DEFAULT_ITERATIONS = 30;
-var maxX = 54;
-var maxY = 0;
-var delay = 500; // [ms]
+var maxX = 38;
+var maxY = 80;
+var delay = 100; // [ms]
+var GRID_WALL_PX = 9;
 
 var ruleInBinary = null;
-var lboard = null;
-var rboard = null;
 
+// boards
+var midBoard = null;
+var randomBoard = null;
+var diffboard = null;
 
-// view part
-var GRID_WALL_PX = 10;
-var rcanvas = null;
-var lcanvas = null;
-var canvasHeight = null;
-var canvasWidth = null;
+// canvas
+var randomCanvasCtx = null;
+var midCanvasCtx = null;
+var diffCanvasCtx = null;
+
+var stop = false;
 
 function createArray2D(dimX, dimY) {
     var arr = new Array(dimY);
 
-    for(var y=0; y<dimY; ++y) {
+    for (var y = 0; y < dimY; ++y) {
         arr[y] = new Array(dimX);
 
-        for(var x=0; x<dimX; ++x)
+        for (var x = 0; x < dimX; ++x)
             arr[y][x] = 0;
     }
 
@@ -31,25 +34,53 @@ function createArray2D(dimX, dimY) {
 }
 
 function getCanvasContexts() {
-    var lb = $("#lboard")[0];
-    var rb = $("#rboard")[0];
-    lcanvas = lb.getContext("2d");
-    rcanvas = rb.getContext("2d");
+    var midCanvas = $("#midCanvas")[0];
+    var randomCanvas = $("#randomCanvas")[0];
+    var diffCanvas = $("#diffCanvas")[0];
 
-    lcanvas.clearRect(0, 0, lb.width, lb.height);
-    rcanvas.clearRect(0, 0, lb.width, lb.height);
+    midCanvasCtx = midCanvas.getContext("2d");
+    randomCanvasCtx = randomCanvas.getContext("2d");
+    diffCanvasCtx = diffCanvas.getContext("2d");
+
+    midCanvas.width = randomCanvas.width = diffCanvas.width = Math.floor($(window).width() / 3);
+
+    midCanvasCtx.clearRect(0, 0, midCanvas.width, midCanvas.height);
+    randomCanvasCtx.clearRect(0, 0, randomCanvas.width, randomCanvas.height);
+    diffCanvasCtx.clearRect(0, 0, diffCanvas.width, diffCanvas.height);
+
+    maxX = Math.floor(midCanvas.width / GRID_WALL_PX);
 }
 
 function createBoards() {
-    lboard = createArray2D(maxX, maxY);
-    rboard = createArray2D(maxX, maxY);
+    midBoard = createArray2D(maxX, maxY);
+    randomBoard = createArray2D(maxX, maxY);
+    diffboard = createArray2D(maxX, maxY);
 }
 
 function getInputs() {
     // '#' in jquery means getById attribute
     ruleInBinary = parseInt($("#rule").val(), 10).toString(2);
-    maxY = parseInt($("#iters").val(), DEFAULT_ITERATIONS);
+    delay = parseInt($("#speed").val(), 10);
 }
+
+function drawRect(canvasCtx, x, y) {
+    canvasCtx.strokeRect(x * GRID_WALL_PX, y * GRID_WALL_PX, GRID_WALL_PX, GRID_WALL_PX);
+}
+
+function fillRect(canvasCtx, x, y) {
+    canvasCtx.fillRect(x * GRID_WALL_PX, y * GRID_WALL_PX, GRID_WALL_PX, GRID_WALL_PX);
+}
+
+function drawBoardForandomCanvasCtx(canvasCtx, board) {
+    for (var y = 0; y < maxY; ++y)
+        for (var x = 0; x < maxX; ++x) {
+            drawRect(canvasCtx, x, y);
+
+            if (board[y][x] == 1)
+                fillRect(canvasCtx, x, y);
+        }
+}
+
 
 bit2top = {
     0: "000",
@@ -62,48 +93,33 @@ bit2top = {
     7: "111"
 };
 
-ruleMappings = [];
+var ruleMappings = null;
 
 function fillRuleMappings() {
-    for(var i=0; i<ruleInBinary.length; ++i)
-        if (ruleInBinary[ruleInBinary.length-i-1] == "1")
+    ruleMappings = [];
+    for (var i = 0; i < ruleInBinary.length; ++i)
+        if (ruleInBinary[ruleInBinary.length - i - 1] == "1")
             ruleMappings.push(bit2top[i]);
 }
 
 
-function drawRect(canvas, x, y) {
-    canvas.strokeRect(x*GRID_WALL_PX, y*GRID_WALL_PX, GRID_WALL_PX, GRID_WALL_PX);
-}
-
-function fillRect(canvas, x, y) {
-    canvas.fillRect(x*GRID_WALL_PX, y*GRID_WALL_PX, GRID_WALL_PX, GRID_WALL_PX);
-}
-
-function drawBoardForCanvas(canvas, board) {
-    for(var y=0; y<maxY; ++y)
-        for(var x=0; x<maxX; ++x) {
-            drawRect(canvas, x, y);
-
-            if (board[y][x] == 1)
-                fillRect(canvas, x, y);
-        }
-}
-
 var currentIteration = 0;
 function calculateIteration() {
     currentIteration += 1;
+    var prevY = currentIteration - 1;
 
-    var trimX = function(x) {
-        return x >= 0? x % maxX : (maxX-1);
+    var trimX = function (x) {
+        return x >= 0 ? x % maxX : (maxX - 1);
     };
 
-    var calcBoard = function(board) {
-        for(var x=0; x<maxX; ++x) {
-            var prevY = currentIteration-1;
+    var calcBoard = function (board) {
+        if (stop)
+            return;
 
-            var left = board[prevY][trimX(x-1)];
+        for (var x = 0; x < maxX; ++x) {
+            var left = board[prevY][trimX(x - 1)];
             var mid = board[prevY][x];
-            var right = board[prevY][trimX(x+1)];
+            var right = board[prevY][trimX(x + 1)];
 
             var str = left.toString() + mid.toString() + right.toString();
 
@@ -112,37 +128,74 @@ function calculateIteration() {
         }
     };
 
-    calcBoard(lboard);
-    calcBoard(rboard);
-    drawBoardForCanvas(lcanvas, lboard);
-    drawBoardForCanvas(rcanvas, rboard);
+    calcBoard(midBoard);
+    calcBoard(randomBoard);
 
-    if (currentIteration < maxY-1)
+    // calculating third "differential" of random board
+    if (currentIteration >= 1)
+        for (var x = 0; x < maxX; ++x)
+            diffboard[prevY][x] = Math.abs(randomBoard[currentIteration][x] - randomBoard[prevY][x]);
+
+    drawBoardForandomCanvasCtx(midCanvasCtx, midBoard);
+    drawBoardForandomCanvasCtx(randomCanvasCtx, randomBoard);
+    drawBoardForandomCanvasCtx(diffCanvasCtx, diffboard);
+
+    if (!stop && currentIteration < maxY - 1)
         setTimeout(calculateIteration, delay);
 }
 
-function setLeftBoard() {
-    lboard[0][Math.floor(maxX/2)] = 1;
+function initBoards() {
+    midBoard[0][Math.floor(maxX / 2)] = 1;
+    for (var x = 0; x < maxX; ++x)
+        if (Math.random() > 0.5)
+            randomBoard[0][x] = 1;
 }
 
-function clearCanvas() {
-}
 
-function fire() {
+////////////// Buttons logic //////////////
+function startSimulation() {
+    stop = false;
     currentIteration = 0;
     getInputs();
     fillRuleMappings();
     getCanvasContexts();
     createBoards();
+    initBoards();
 
-    console.log("-- Starting simulation --");
-    console.log("ruleInBinary = " + ruleInBinary, "ruleMappings = " + ruleMappings);
+    console.log("--------- Starting simulation ---------");
+    console.log("ruleInBinary = " + ruleInBinary);
+    console.log("ruleMappings = " + ruleMappings);
     console.log("maxY = " + maxY + ", maxY = " + maxX);
-    console.log("-------------------------");
+    console.log("---------------------------------------");
 
-    setLeftBoard();
-    drawBoardForCanvas(lcanvas, lboard);
-    drawBoardForCanvas(rcanvas, rboard);
+    drawBoardForandomCanvasCtx(midCanvasCtx, midBoard);
+    drawBoardForandomCanvasCtx(randomCanvasCtx, randomBoard);
 
     setTimeout(calculateIteration, delay);
 }
+
+function stopSimulation() {
+    stop = true;
+}
+
+function changeSpeed() {
+    delay = parseInt($("#speed").val(), 10);
+}
+////////////////////////////////////////////
+
+$(document).ready(function () {
+    // Filling inputs with defaults and making them `numeric only`
+    var rule = $("#rule");
+    var speed = $("#speed");
+
+    var integersOnly = function () {
+        if (this.value != this.value.replace(/[^0-9]/g, '')) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        }
+    };
+
+    speed.keyup(integersOnly);
+    rule.keyup(integersOnly);
+    speed.val(DEFAULT_DELAY);
+    rule.val(DEFAULT_RULE);
+});

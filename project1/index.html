@@ -1,41 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <script src="jquery-1.12.1.js"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-        <link rel="stylesheet" href="style.css">
+<head>
+    <script src="jquery-1.12.1.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="code.js"></script>
+</head>
 
-        <script src="code.js"></script>
-    </head>
+<body>
+<div class="container">
+    <h1>Cellular automata project</h1>
 
-    <body>
-    <div class="container">
-        <h1>Cellular automata</h1>
+    <h3>Dominik Czarnota</h3>
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label for="rule">Rule:</label>
-                    <input type="text" class="form-control" id="rule">
-                </div>
-
-                <div class="form-group">
-                    <label for="iters">Iterations count:</label>
-                    <input type="text" class="form-control" id="iters">
-                </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="rule">Rule (should be in range 0-255):</label>
+                <input type="text" class="form-control" id="rule">
             </div>
         </div>
-
-        <button class="btn btn-info" onclick="fire()">Fire</button>
-
-        <div class="row boards">
-            <div class="col-md-6">
-                <canvas id="lboard" width="600px" height="1000px"></canvas>
-            </div>
-            <div class="col-md-6">
-                <canvas id="rboard" width="600px" height="1000px"></canvas>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="speed">Speed (in milliseconds):</label>
+                <input type="text" class="form-control" id="speed">
             </div>
         </div>
     </div>
-    </body>
+
+    <div class="row">
+        <button class="btn btn-info" onclick="startSimulation()">Start</button>
+        <button class="btn btn-info" onclick="stopSimulation()">Stop</button>
+        <button class="btn btn-info" onclick="changeSpeed()">Change speed (works from next iteration)</button>
+    </div>
+</div>
+<div class="row boards">
+    <div class="col-md-4">
+        <div style="text-align: center;">One cell at middle</div>
+        <canvas id="midCanvas" width="380px" height="600px"></canvas>
+    </div>
+    <div class="col-md-4">
+        <div style="text-align: center;">Random cells (50% probability)</div>
+        <canvas id="randomCanvas" width="380px" height="600px"></canvas>
+    </div>
+    <div class="col-md-4">
+        <div style="text-align: center;">Abs(row - previous_row) of random cells</div>
+        <canvas id="diffCanvas" width="380px" height="600px"></canvas>
+    </div>
+</div>
+
+</body>
 </html>
