@@ -8,7 +8,7 @@
 </head>
 
 <body>
-<div class="container">
+<div class="container" style="position: fixed; top: 0; z-index: 10; background: white">
     <h1>Cellular automata project</h1>
 
     <h3>Dominik Czarnota</h3>
@@ -28,13 +28,29 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" style="text-align: center">
         <button class="btn btn-info" onclick="startSimulation()">Start</button>
+        <button class="btn btn-info" onclick="calculateIteration(true)">Single step</button>
         <button class="btn btn-info" onclick="stopSimulation()">Stop</button>
         <button class="btn btn-info" onclick="changeSpeed()">Change speed (works from next iteration)</button>
     </div>
 </div>
-<div class="row boards">
+
+<div class="row margin-top" style="text-align: center">
+    Rule representation (Bits: <span id="ruleRepresentation">......</span>)
+</div>
+
+<div class="row" style="text-align: center">
+    <canvas id="ruleMapping0" width="50px" height="30px"></canvas>
+    <canvas id="ruleMapping1" width="50px" height="30px"></canvas>
+    <canvas id="ruleMapping2" width="50px" height="30px"></canvas>
+    <canvas id="ruleMapping3" width="50px" height="30px"></canvas>
+    <canvas id="ruleMapping4" width="50px" height="30px"></canvas>
+    <canvas id="ruleMapping5" width="50px" height="30px"></canvas>
+    <canvas id="ruleMapping6" width="50px" height="30px"></canvas>
+    <canvas id="ruleMapping7" width="50px" height="30px"></canvas>
+</div>
+<div class="row margin-top">
     <div class="col-md-4">
         <div style="text-align: center;">One cell at middle</div>
         <canvas id="midCanvas" width="380px" height="600px"></canvas>
