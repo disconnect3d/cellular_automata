@@ -8,60 +8,75 @@
 </head>
 
 <body>
-<div class="container" style="position: fixed; top: 0; z-index: 10; background: white">
+<div class="container">
     <h1>Cellular automata project</h1>
 
-    <h3>Dominik Czarnota</h3>
+    <h3>Created by Dominik Czarnota</h3>
 
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="form-group">
-                <label for="rule">Rule (should be in range 0-255):</label>
+                <label for="rule">Rule (0-255):</label>
                 <input type="text" class="form-control" id="rule">
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="form-group">
-                <label for="speed">Speed (in milliseconds):</label>
+                <label for="speed">Speed [ms]:</label>
                 <input type="text" class="form-control" id="speed">
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="row text-center">
+                Rule representation (Bits: <span id="ruleRepresentation">......</span>)
+            </div>
+
+            <div class="row text-center">
+                <canvas id="ruleMapping0" width="50px" height="30px"></canvas>
+                <canvas id="ruleMapping1" width="50px" height="30px"></canvas>
+                <canvas id="ruleMapping2" width="50px" height="30px"></canvas>
+                <canvas id="ruleMapping3" width="50px" height="30px"></canvas>
+                <canvas id="ruleMapping4" width="50px" height="30px"></canvas>
+                <canvas id="ruleMapping5" width="50px" height="30px"></canvas>
+                <canvas id="ruleMapping6" width="50px" height="30px"></canvas>
+                <canvas id="ruleMapping7" width="50px" height="30px"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="row" style="text-align: center">
+    <div class="row text-center">
         <button class="btn btn-info" onclick="startSimulation()">Start</button>
         <button class="btn btn-info" onclick="calculateIteration(true)">Single step</button>
         <button class="btn btn-info" onclick="stopSimulation()">Stop</button>
-        <button class="btn btn-info" onclick="changeSpeed()">Change speed (works from next iteration)</button>
+        <button class="btn btn-info" onclick="changeSpeed()">Change speed</button>
     </div>
 </div>
 
-<div class="row margin-top" style="text-align: center">
-    Rule representation (Bits: <span id="ruleRepresentation">......</span>)
-</div>
 
-<div class="row" style="text-align: center">
-    <canvas id="ruleMapping0" width="50px" height="30px"></canvas>
-    <canvas id="ruleMapping1" width="50px" height="30px"></canvas>
-    <canvas id="ruleMapping2" width="50px" height="30px"></canvas>
-    <canvas id="ruleMapping3" width="50px" height="30px"></canvas>
-    <canvas id="ruleMapping4" width="50px" height="30px"></canvas>
-    <canvas id="ruleMapping5" width="50px" height="30px"></canvas>
-    <canvas id="ruleMapping6" width="50px" height="30px"></canvas>
-    <canvas id="ruleMapping7" width="50px" height="30px"></canvas>
-</div>
-<div class="row margin-top">
+<div class="row content text-center">
     <div class="col-md-4">
-        <div style="text-align: center;">One cell at middle</div>
-        <canvas id="midCanvas" width="380px" height="600px"></canvas>
+        <div class="row">
+            One cell at middle
+        </div>
+        <div class="row">
+            <canvas id="midCanvas" width="380px" height="600px"></canvas>
+        </div>
     </div>
     <div class="col-md-4">
-        <div style="text-align: center;">Random cells (50% probability)</div>
-        <canvas id="randomCanvas" width="380px" height="600px"></canvas>
+        <div class="row">
+            Random cells (50% probability)
+        </div>
+        <div class="row">
+            <canvas id="randomCanvas" width="380px" height="600px"></canvas>
+        </div>
     </div>
     <div class="col-md-4">
-        <div style="text-align: center;">Abs(row - previous_row) of random cells</div>
-        <canvas id="diffCanvas" width="380px" height="600px"></canvas>
+        <div class="row">
+            Middle simulation with one bit change
+        </div>
+        <div class="row">
+            <canvas id="diffCanvas" width="380px" height="600px"></canvas>
+        </div>
     </div>
 </div>
 

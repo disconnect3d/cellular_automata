@@ -1,15 +1,9 @@
-html,body {
-    height:100vh;
-    max-width: 1500px;
-    margin: 0 auto;
-    padding-top: 00px;
-}
-
-.container .row .col-md-6 {
-    height: 100vh;
-    overflow: auto;
-}
-
-.margin-top {
+.content {
     margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    left: 0;
+    right: 0;
+    #background: #c4e3f3;
+    overflow: auto;
 }
