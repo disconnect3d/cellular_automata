@@ -1,5 +1,6 @@
 var DEFAULT_RULE = "110";
 var DEFAULT_DELAY = "75";
+var DEFAULT_MAX_HEIGHT = 1000;
 
 var delay = 100; // [ms]
 var GRID_WALL_PX = 9;
@@ -25,12 +26,14 @@ function fillRect(canvasCtx, x, y) {
     canvasCtx.fillRect(1 + x * GRID_WALL_PX, 1 + y * GRID_WALL_PX, GRID_WALL_PX, GRID_WALL_PX);
 }
 
+var copyCanvas;
 function createBoard(elementId) {
     var canvasColElement = $("#" + elementId + "Col");
     var canvasElement = $("#" + elementId)[0];
     var canvasCtx = canvasElement.getContext("2d");
 
     var cols;
+    var rows;
     var iteration;
 
     var prevArray;
@@ -45,7 +48,9 @@ function createBoard(elementId) {
         init: function () {
             iteration = 0;
             canvasElement.width = canvasColElement.width();
+            canvasElement.height = DEFAULT_MAX_HEIGHT;
             cols = Math.floor(canvasElement.width / GRID_WALL_PX) - 1;
+            rows = Math.floor(canvasElement.height / GRID_WALL_PX);
 
             if (cols % 2 == 0)
                 cols -= 1;
@@ -83,13 +88,17 @@ function createBoard(elementId) {
             }
         },
 
-        nextIteration: function() {
+        nextIteration: function () {
             iteration += 1;
 
             var tmp = prevArray;
             prevArray = currArray;
             currArray = tmp;
             clearCurrArray();
+
+            if (iteration % rows == 0 && iteration < 1000) {
+                this.setHeight(canvasElement.height + DEFAULT_MAX_HEIGHT);
+            }
         },
 
         // view like methods
@@ -104,8 +113,19 @@ function createBoard(elementId) {
                     fillRect(canvasCtx, x, iteration);
             }
         },
+
         setHeight: function (newHeight) {
-            context.height = newHeight;
+            // create backing canvas
+            copyCanvas.width = canvasElement.width;
+            copyCanvas.height = canvasElement.height;
+            console.log(copyCanvas);
+            var copyCtx = copyCanvas.getContext('2d');
+
+            copyCtx.drawImage(canvasElement, 0, 0);
+
+            // restore main canvas
+            canvasElement.height = newHeight;
+            canvasCtx.drawImage(copyCanvas, 0, 0);
         }
     };
 }
@@ -231,4 +251,5 @@ $(document).ready(function () {
     midPointBoard = createBoard("midCanvas");
     rndPointBoard = createBoard("rndCanvas");
     rndDiffPointBoard = createBoard("rndDiffCanvas");
+    copyCanvas = document.createElement('canvas');
 });
