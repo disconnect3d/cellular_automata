@@ -54,7 +54,7 @@
 
 
 <div class="row content text-center">
-    <div class="col-md-4">
+    <div class="col-md-4" id="midCanvasCol">
         <div class="row">
             One cell at middle
         </div>
@@ -62,20 +62,20 @@
             <canvas id="midCanvas" width="380px" height="600px"></canvas>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4" id="rndCanvasCol">
         <div class="row">
             Random cells (50% probability)
         </div>
         <div class="row">
-            <canvas id="randomCanvas" width="380px" height="600px"></canvas>
+            <canvas id="rndCanvas" width="380px" height="600px"></canvas>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4" id="rndDiffCanvasCol" style="background: red">
         <div class="row">
             Middle simulation with one bit change
         </div>
         <div class="row">
-            <canvas id="diffCanvas" width="380px" height="600px"></canvas>
+            <canvas id="rndDiffCanvas" width="380px" height="600px"></canvas>
         </div>
     </div>
 </div>
