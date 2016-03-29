@@ -26,39 +26,47 @@ function fillRect(canvasCtx, x, y) {
 }
 
 function createBoard(elementId) {
-    var canvasColElement = $("#" + elementId + "col");
+    var canvasColElement = $("#" + elementId + "Col");
     var canvasElement = $("#" + elementId)[0];
     var canvasCtx = canvasElement.getContext("2d");
 
-    var cols = Math.floor(canvasColElement.width() / GRID_WALL_PX);
-
+    var cols;
     var iteration;
 
-    var prevArray = createArray(cols);
-    var currArray = createArray(cols);
+    var prevArray;
+    var currArray;
 
-    var init = function() {
-        iteration = 0;
-        canvasCtx.width = canvasColElement.width;
-    };
-
-    var clearCurrArray = function() {
+    var clearCurrArray = function () {
         for (var x = 0; x < cols; ++x)
             currArray[x] = 0;
-    }
+    };
 
     return {
+        init: function () {
+            iteration = 0;
+            canvasElement.width = canvasColElement.width();
+            cols = Math.floor(canvasElement.width / GRID_WALL_PX) - 1;
+
+            if (cols % 2 == 0)
+                cols -= 1;
+
+            prevArray = createArray(cols);
+            currArray = createArray(cols);
+
+            this.clearCanvas();
+        },
+
         initRandBits: function () {
-            init();
+            this.init();
             for (var x = 0; x < cols; ++x)
-                    currArray[x] = Math.random() > 0.5? 1 : 0;
+                currArray[x] = Math.random() > 0.5 ? 1 : 0;
         },
         initMidBit: function () {
-            init();
+            this.init();
             clearCurrArray();
             currArray[Math.floor(cols / 2)] = 1;
         },
-        calculateIteration: function () {
+        calculateCurrent: function () {
             var trimX = function (x) {
                 return x >= 0 ? x % cols : (cols - 1);
             };
@@ -73,6 +81,15 @@ function createBoard(elementId) {
                 if (ruleMappings.indexOf(str) != -1)
                     currArray[x] = 1;
             }
+        },
+
+        nextIteration: function() {
+            iteration += 1;
+
+            var tmp = prevArray;
+            prevArray = currArray;
+            currArray = tmp;
+            clearCurrArray();
         },
 
         // view like methods
@@ -122,7 +139,7 @@ function fillRuleMappings() {
 
 function clearAndDrawRuleMappings() {
     var canvas_id = "ruleMapping";
-    for (var i = 0; i < 7; ++i) {
+    for (var i = 0; i <= 7; ++i) {
         var canvas = $("#" + canvas_id + i)[0];
 
         var ctx = canvas.getContext("2d");
@@ -147,11 +164,21 @@ var midPointBoard;
 var rndPointBoard;
 var rndDiffPointBoard;
 
-function loop() {
-    midPointBoard.calculateIteration();
-    rndPointBoard.calculateIteration();
-    rndDiffPointBoard.calculateIteration();
+function invokeOnBoards(funcName) {
+    midPointBoard[funcName]();
+    rndPointBoard[funcName]();
+    rndDiffPointBoard[funcName]();
 }
+
+function loop() {
+    invokeOnBoards('calculateCurrent');
+    invokeOnBoards('drawCurrent');
+    invokeOnBoards('nextIteration');
+
+    if (!stop)
+        setTimeout(loop, delay);
+}
+
 
 ////////////// Buttons logic //////////////
 function startSimulation() {
@@ -170,6 +197,7 @@ function startSimulation() {
     console.log("---------------------------------------");
 
     clearAndDrawRuleMappings();
+    invokeOnBoards('drawCurrent');
 
     setTimeout(loop, delay);
 }
