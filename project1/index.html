@@ -45,40 +45,31 @@
     </div>
 
     <div class="row text-center">
-        <button class="btn btn-info" onclick="startSimulation()">Start</button>
-        <button class="btn btn-info" onclick="calculateIteration(true)">Single step</button>
-        <button class="btn btn-info" onclick="stopSimulation()">Stop</button>
+        <button class="btn btn-primary" onclick="startSimulation()">Start new</button>
+        <button class="btn btn-primary" onclick="stopSimulation()">Stop</button>
         <button class="btn btn-info" onclick="changeSpeed()">Change speed</button>
+        <button class="btn btn-info" onclick="changeAutoScroll()">Auto scroll is <span id="autoScroll">ON</span></button>
+    </div>
+
+    <div class="row text-center">
+        <div class="col-md-4">One cell at middle</div>
+        <div class="col-md-4">Random cells (50% probability)</div>
+        <div class="col-md-4">Middle simulation with random bit difference</div>
     </div>
 </div>
 
 
-<div class="row content text-center">
+<div class="row content">
     <div class="col-md-4" id="midCanvasCol">
-        <div class="row">
-            One cell at middle
-        </div>
-        <div class="row">
-            <canvas id="midCanvas" width="380px" height="600px"></canvas>
-        </div>
+        <canvas id="midCanvas" width="380px" height="600px"></canvas>
     </div>
+
     <div class="col-md-4" id="rndCanvasCol">
-        <div class="row">
-            Random cells (50% probability)
-        </div>
-        <div class="row">
-            <canvas id="rndCanvas" width="380px" height="600px"></canvas>
-        </div>
+        <canvas id="rndCanvas" width="380px" height="600px"></canvas>
     </div>
     <div class="col-md-4" id="rndDiffCanvasCol">
-        <div class="row">
-            Middle simulation with one bit change
-        </div>
-        <div class="row">
-            <canvas id="rndDiffCanvas" width="380px" height="600px"></canvas>
-        </div>
+        <canvas id="rndDiffCanvas" width="380px" height="600px"></canvas>
     </div>
 </div>
-
 </body>
 </html>

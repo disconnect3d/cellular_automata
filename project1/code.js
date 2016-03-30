@@ -1,12 +1,13 @@
-var GRID_WALL_PX = 9;
+var GRID_WALL_PX = 10;
 
-var DEFAULT_RULE = "110";
-var DEFAULT_DELAY = "75";
+var DEFAULT_RULE = "22";
+var DEFAULT_DELAY = "70";
 var DEFAULT_MAX_HEIGHT = GRID_WALL_PX;
 var MAX_ITERATIONS = 1000;
 
 var delay = 100; // [ms]
 var stop = false;
+var autoScroll = true;
 
 var ruleInBinary = null;
 
@@ -47,7 +48,6 @@ function createBoard(elementId) {
     var cols;
     var rows;
     var iteration;
-    var scrolling = false;
 
     return {
         init: function () {
@@ -62,7 +62,6 @@ function createBoard(elementId) {
 
             this.prevArray = createArray(cols);
             this.currArray = createArray(cols);
-            scrolling = false;
 
             this.clearCanvas();
         },
@@ -126,10 +125,8 @@ function createBoard(elementId) {
             this.currArray = tmp;
             this.clearCurrArray();
 
-            if (iteration % rows == 0 && iteration < MAX_ITERATIONS) {
+            if (iteration % rows == 0 && iteration < MAX_ITERATIONS)
                 this.setHeight(canvasElement.height + DEFAULT_MAX_HEIGHT);
-                scrolling = true;
-            }
         },
 
         // view methods
@@ -153,7 +150,7 @@ function createBoard(elementId) {
                         break;
 
                     case BIT_OFF_REF_BOARD_ON:
-                        canvasCtx.fillStyle = "#b03c0a";
+                        canvasCtx.fillStyle = "#b00c0a";
                         break;
                 }
                 fillRect(canvasCtx, x, iteration);
@@ -218,16 +215,16 @@ function clearAndDrawRuleMappings() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for (var s = 0; s < 3; ++s) {
-            drawRect(ctx, s, 0);
             if (ruleBits[i][s] == BIT_ON)
                 fillRect(ctx, s, 0);
+            drawRect(ctx, s, 0);
         }
 
         drawRect(ctx, 0, 1);
         if (ruleBitsIndexes.indexOf(i) != -1)
             fillRect(ctx, 1, 1);
-        else
-            drawRect(ctx, 1, 1);
+
+        drawRect(ctx, 1, 1);
         drawRect(ctx, 2, 1);
     }
 }
@@ -247,7 +244,9 @@ function loop() {
     rndDiffPointBoard.calcDiffWithOtherBoard();
     invokeOnBoards('drawCurrent');
     invokeOnBoards('nextIteration');
-    window.scrollTo(0, (midPointBoard.getIteration() + 1) * GRID_WALL_PX);
+
+    if (autoScroll)
+        window.scrollTo(0, (midPointBoard.getIteration() + 1) * GRID_WALL_PX);
 
     if (!stop)
         setTimeout(loop, delay);
@@ -282,6 +281,12 @@ function stopSimulation() {
 
 function changeSpeed() {
     delay = parseInt($("#speed").val(), 10);
+}
+
+function changeAutoScroll() {
+    autoScroll = !autoScroll;
+    $("#autoScroll").text(autoScroll ? "ON" : "OFF");
+
 }
 ////////////////////////////////////////////
 
