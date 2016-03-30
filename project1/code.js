@@ -1,13 +1,14 @@
-var DEFAULT_RULE = "110";
-var DEFAULT_DELAY = "75";
-var DEFAULT_MAX_HEIGHT = 1000;
-
-var delay = 100; // [ms]
 var GRID_WALL_PX = 9;
 
-var ruleInBinary = null;
+var DEFAULT_RULE = "110";
+var DEFAULT_DELAY = "75";
+var DEFAULT_MAX_HEIGHT = GRID_WALL_PX;
+var MAX_ITERATIONS = 1000;
 
+var delay = 100; // [ms]
 var stop = false;
+
+var ruleInBinary = null;
 
 function createArray(size) {
     var arr = new Array(size);
@@ -26,6 +27,17 @@ function fillRect(canvasCtx, x, y) {
     canvasCtx.fillRect(1 + x * GRID_WALL_PX, 1 + y * GRID_WALL_PX, GRID_WALL_PX, GRID_WALL_PX);
 }
 
+
+// array statuses:
+var BIT_OFF = 0;
+var BIT_ON = 1;
+var BIT_OFF_REF_BOARD_ON = 2;
+var BIT_ON_REF_BOARD_OFF = 3;
+
+function isBitOn(bit) {
+    return (bit == BIT_ON || bit == BIT_ON_REF_BOARD_OFF) ? BIT_ON : BIT_OFF;
+}
+
 var copyCanvas;
 function createBoard(elementId) {
     var canvasColElement = $("#" + elementId + "Col");
@@ -35,14 +47,7 @@ function createBoard(elementId) {
     var cols;
     var rows;
     var iteration;
-
-    var prevArray;
-    var currArray;
-
-    var clearCurrArray = function () {
-        for (var x = 0; x < cols; ++x)
-            currArray[x] = 0;
-    };
+    var scrolling = false;
 
     return {
         init: function () {
@@ -55,8 +60,9 @@ function createBoard(elementId) {
             if (cols % 2 == 0)
                 cols -= 1;
 
-            prevArray = createArray(cols);
-            currArray = createArray(cols);
+            this.prevArray = createArray(cols);
+            this.currArray = createArray(cols);
+            scrolling = false;
 
             this.clearCanvas();
         },
@@ -64,12 +70,26 @@ function createBoard(elementId) {
         initRandBits: function () {
             this.init();
             for (var x = 0; x < cols; ++x)
-                currArray[x] = Math.random() > 0.5 ? 1 : 0;
+                this.currArray[x] = Math.random() > 0.5 ? BIT_ON : BIT_OFF;
         },
         initMidBit: function () {
             this.init();
-            clearCurrArray();
-            currArray[Math.floor(cols / 2)] = 1;
+            this.clearCurrArray();
+            this.currArray[Math.floor(cols / 2)] = BIT_ON;
+        },
+        initCopyOtherAddRandomDifference: function (otherBoard) {
+            this.init();
+            for (var x = 0; x < cols; ++x)
+                this.currArray[x] = otherBoard.currArray[x];
+
+            var bitIndex = Math.floor(Math.random() * cols);
+            this.currArray[bitIndex] = this.currArray[bitIndex] == BIT_ON ? BIT_OFF : BIT_ON;
+            this.otherBoard = otherBoard;
+        },
+
+        clearCurrArray: function () {
+            for (var x = 0; x < cols; ++x)
+                this.currArray[x] = 0;
         },
         calculateCurrent: function () {
             var trimX = function (x) {
@@ -77,40 +97,68 @@ function createBoard(elementId) {
             };
 
             for (var x = 0; x < cols; ++x) {
-                var left = prevArray[trimX(x - 1)];
-                var mid = prevArray[x];
-                var right = prevArray[trimX(x + 1)];
+                var left = isBitOn(this.prevArray[trimX(x - 1)]);
+                var mid = isBitOn(this.prevArray[x]);
+                var right = isBitOn(this.prevArray[trimX(x + 1)]);
 
-                var str = left.toString() + mid.toString() + right.toString();
+                var bitIndex = parseInt(left.toString() + mid.toString() + right.toString(), 2);
 
-                if (ruleMappings.indexOf(str) != -1)
-                    currArray[x] = 1;
+                if (ruleBitsIndexes.indexOf(bitIndex) != -1)
+                    this.currArray[x] = BIT_ON;
             }
+        },
+
+        calcDiffWithOtherBoard: function () {
+            for (var x = 0; x < cols; ++x)
+                if (this.otherBoard.currArray[x] && !this.currArray[x])
+                    this.currArray[x] = BIT_OFF_REF_BOARD_ON;
+                else if (!this.otherBoard.currArray[x] && this.currArray[x])
+                    this.currArray[x] = BIT_ON_REF_BOARD_OFF;
+
+            console.log(this.currArray);
         },
 
         nextIteration: function () {
             iteration += 1;
 
-            var tmp = prevArray;
-            prevArray = currArray;
-            currArray = tmp;
-            clearCurrArray();
+            var tmp = this.prevArray;
+            this.prevArray = this.currArray;
+            this.currArray = tmp;
+            this.clearCurrArray();
 
-            if (iteration % rows == 0 && iteration < 1000) {
+            if (iteration % rows == 0 && iteration < MAX_ITERATIONS) {
                 this.setHeight(canvasElement.height + DEFAULT_MAX_HEIGHT);
+                scrolling = true;
             }
         },
 
-        // view like methods
+        // view methods
         clearCanvas: function () {
             canvasCtx.clearRect(0, 0, canvasCtx.width, canvasCtx.height);
         },
         drawCurrent: function () {
             for (var x = 0; x < cols; ++x) {
                 drawRect(canvasCtx, x, iteration);
+                switch (this.currArray[x]) {
+                    case BIT_OFF:
+                        drawRect(canvasCtx, x, iteration);
+                        continue;
 
-                if (currArray[x] == 1)
-                    fillRect(canvasCtx, x, iteration);
+                    case BIT_ON:
+                        canvasCtx.fillStyle = "black";
+                        break;
+
+                    case BIT_ON_REF_BOARD_OFF:
+                        canvasCtx.fillStyle = "#f68b5c";
+                        break;
+
+                    case BIT_OFF_REF_BOARD_ON:
+                        canvasCtx.fillStyle = "#b03c0a";
+                        break;
+                }
+                fillRect(canvasCtx, x, iteration);
+                canvasCtx.fillStyle = "black";
+                drawRect(canvasCtx, x, iteration);
             }
         },
 
@@ -126,6 +174,10 @@ function createBoard(elementId) {
             // restore main canvas
             canvasElement.height = newHeight;
             canvasCtx.drawImage(copyCanvas, 0, 0);
+        },
+
+        getIteration: function () {
+            return iteration;
         }
     };
 }
@@ -137,24 +189,24 @@ function getInputs() {
     $("#ruleRepresentation").text(ruleInBinary);
 }
 
-var bit2top = {
-    0: "000",
-    1: "001",
-    2: "010",
-    3: "011",
-    4: "100",
-    5: "101",
-    6: "110",
-    7: "111"
+var ruleBits = {
+    0: [0, 0, 0],
+    1: [0, 0, 1],
+    2: [0, 1, 0],
+    3: [0, 1, 1],
+    4: [1, 0, 0],
+    5: [1, 0, 1],
+    6: [1, 1, 0],
+    7: [1, 1, 1]
 };
 
-var ruleMappings = null;
+var ruleBitsIndexes = null;
 
-function fillRuleMappings() {
-    ruleMappings = [];
+function fillRuleBitsIndexes() {
+    ruleBitsIndexes = [];
     for (var i = 0; i < ruleInBinary.length; ++i)
         if (ruleInBinary[ruleInBinary.length - i - 1] == "1")
-            ruleMappings.push(bit2top[i]);
+            ruleBitsIndexes.push(i);
 }
 
 function clearAndDrawRuleMappings() {
@@ -167,12 +219,12 @@ function clearAndDrawRuleMappings() {
 
         for (var s = 0; s < 3; ++s) {
             drawRect(ctx, s, 0);
-            if (bit2top[i][s] == "1")
+            if (ruleBits[i][s] == BIT_ON)
                 fillRect(ctx, s, 0);
         }
 
         drawRect(ctx, 0, 1);
-        if (ruleMappings.indexOf(bit2top[i]) != -1)
+        if (ruleBitsIndexes.indexOf(i) != -1)
             fillRect(ctx, 1, 1);
         else
             drawRect(ctx, 1, 1);
@@ -192,8 +244,10 @@ function invokeOnBoards(funcName) {
 
 function loop() {
     invokeOnBoards('calculateCurrent');
+    rndDiffPointBoard.calcDiffWithOtherBoard();
     invokeOnBoards('drawCurrent');
     invokeOnBoards('nextIteration');
+    window.scrollTo(0, (midPointBoard.getIteration() + 1) * GRID_WALL_PX);
 
     if (!stop)
         setTimeout(loop, delay);
@@ -205,15 +259,15 @@ function startSimulation() {
     stop = false;
 
     getInputs();
-    fillRuleMappings();
+    fillRuleBitsIndexes();
 
     midPointBoard.initMidBit();
     rndPointBoard.initRandBits();
-    rndDiffPointBoard.initRandBits();
+    rndDiffPointBoard.initCopyOtherAddRandomDifference(rndPointBoard);
 
     console.log("--------- Starting simulation ---------");
     console.log("ruleInBinary = " + ruleInBinary);
-    console.log("ruleMappings = " + ruleMappings);
+    console.log("ruleBitsIndexes = " + ruleBitsIndexes);
     console.log("---------------------------------------");
 
     clearAndDrawRuleMappings();

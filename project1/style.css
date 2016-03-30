@@ -1,4 +1,13 @@
+.container {
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    background: white;
+    width: 100%
+}
+
 .content {
+    padding-top: 220px;
     margin-top: 10px;
     margin-left: 10px;
     margin-right: 10px;
