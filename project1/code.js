@@ -82,7 +82,7 @@ function createBoard(elementId) {
                 this.currArray[x] = otherBoard.currArray[x];
 
             var bitIndex = Math.floor(Math.random() * cols);
-            this.currArray[bitIndex] = this.currArray[bitIndex] == BIT_ON ? BIT_OFF : BIT_ON;
+            this.currArray[bitIndex] = this.currArray[bitIndex] == BIT_ON ? BIT_OFF_REF_BOARD_ON : BIT_ON_REF_BOARD_OFF;
             this.otherBoard = otherBoard;
         },
 
@@ -94,7 +94,7 @@ function createBoard(elementId) {
             var trimX = function (x) {
                 return x >= 0 ? x % cols : (cols - 1);
             };
-
+            console.log(this.prevArray);
             for (var x = 0; x < cols; ++x) {
                 var left = isBitOn(this.prevArray[trimX(x - 1)]);
                 var mid = isBitOn(this.prevArray[x]);
@@ -105,6 +105,8 @@ function createBoard(elementId) {
                 if (ruleBitsIndexes.indexOf(bitIndex) != -1)
                     this.currArray[x] = BIT_ON;
             }
+            console.log(this.currArray);
+         //   aa
         },
 
         calcDiffWithOtherBoard: function () {
@@ -113,8 +115,6 @@ function createBoard(elementId) {
                     this.currArray[x] = BIT_OFF_REF_BOARD_ON;
                 else if (!this.otherBoard.currArray[x] && this.currArray[x])
                     this.currArray[x] = BIT_ON_REF_BOARD_OFF;
-
-            console.log(this.currArray);
         },
 
         nextIteration: function () {
@@ -163,7 +163,7 @@ function createBoard(elementId) {
             // create backing canvas
             copyCanvas.width = canvasElement.width;
             copyCanvas.height = canvasElement.height;
-            console.log(copyCanvas);
+
             var copyCtx = copyCanvas.getContext('2d');
 
             copyCtx.drawImage(canvasElement, 0, 0);
@@ -271,6 +271,7 @@ function startSimulation() {
 
     clearAndDrawRuleMappings();
     invokeOnBoards('drawCurrent');
+    invokeOnBoards('nextIteration');
 
     setTimeout(loop, delay);
 }
