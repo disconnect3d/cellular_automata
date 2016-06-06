@@ -203,7 +203,7 @@ function familyModel(gridPainter) {
                 x += Math.random() > 0.5? 1 : -1;
             else if (canGoLeft)
                 x -= 1;
-            else
+            else if (canGoRight)
                 x += 1;
 
             if (canGoLeft || canGoRight) {
@@ -211,15 +211,13 @@ function familyModel(gridPainter) {
                 this.setBoxY(this.getMaxYwithoutBox(x));
             }
         }
-
-
     };
 
     return model;
 }
 
 // model wolf vilian - liczba koordynacyjna oznacza liczbe sasiadow - idziemy tam gdzie bedzie najwiecej sasiadow
-function wolfModel(gridPainter) {
+function wvModel(gridPainter) {
     var model = baseModel(gridPainter);
 
     var maxY = model.getMaxY();
@@ -265,7 +263,7 @@ function wolfModel(gridPainter) {
             x += Math.random() > 0.5 ? 1 : -1;
         else if (canGoLeft)
             x -= 1;
-        else
+        else if (canGoRight)
             x += 1;
 
         if (canGoLeft || canGoRight) {
@@ -276,16 +274,69 @@ function wolfModel(gridPainter) {
 
     return model;
 }
-var gridWallPx = 100;
+
+// model das Sarmy-Tamborenea
+function dstModel(gridPainter) {
+    var model = baseModel(gridPainter);
+
+    var maxY = model.getMaxY();
+    var maxX = model.getMaxX();
+    var map = model.getMap();
+
+    model['calculateBoxPos'] = function() {
+        var y = this.getBoxY();
+        var x = this.getBoxX();
+
+        // -1 value means the block can't go left/right
+        var canGoLeft = false;
+        var canGoRight = false;
+
+        if (x != 0 && map[y][x - 1] == MAP_FIELD.NOTHING) {
+            var posX = x - 1;
+            var posY = this.getMaxYwithoutBox(posX);
+
+            if (posX != 0 && map[posY][posX - 1] == MAP_FIELD.BOX || map[posY][posX + 1] == MAP_FIELD.BOX)
+                canGoLeft = true;
+        }
+
+        if (x != maxX - 1 && map[y][x + 1] == MAP_FIELD.NOTHING) {
+            var posX = x + 1;
+            var posY = this.getMaxYwithoutBox(posX);
+
+            if (posX != maxX - 1 && map[posY][posX + 1] == MAP_FIELD.BOX || map[posY][posX - 1] == MAP_FIELD.BOX)
+                canGoRight = true;
+        }
+
+        if (canGoLeft && canGoRight)
+            x += Math.random() > 0.5 ? 1 : -1;
+        else if (canGoLeft)
+            x -= 1;
+        else if (canGoRight)
+            x += 1;
+
+        if (canGoLeft || canGoRight) {
+            this.setBoxX(x);
+            this.setBoxY(this.getMaxYwithoutBox(x));
+        }
+    };
+
+    return model;
+}
+
+var gridWallPx = 10;
 // wolf model painter
 
+
 $(document).ready(function () {
-    var family = familyModel(gridPainter('familyCanvas', gridWallPx));
-    var wolfvilian = wolfModel(gridPainter('wvCanvas', gridWallPx));
+    var models = [
+        familyModel(gridPainter('familyCanvas', gridWallPx)),
+        wvModel(gridPainter('wvCanvas', gridWallPx)),
+        dstModel(gridPainter('dstCanvas', gridWallPx))
+    ];
 
-    //family.generateMap();
-    //family.simulate();
-
-    wolfvilian.generateMap();
-    wolfvilian.simulate();
+    for(var i=0; i<3; ++i) {
+        var m = models[i];
+        m.generateMap();
+        m.simulate();
+    }
 });
