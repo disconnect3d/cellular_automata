@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <script src="jquery-1.12.1.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js"></script>
+    <script src="paint.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <h1>Projekt z Automatów Komórkowych - Model Nanoszenia Przypadkowego </h1>
+
+    <h3>Autor: Dominik Czarnota</h3>
+
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="speed">Speed [ms]:</label>
+                <input type="text" class="form-control" id="speed">
+            </div>
+        </div>
+    </div>
+
+    <div class="row text-center">
+        <button class="btn btn-primary" onclick="startSimulation()">Start new</button>
+        <button class="btn btn-primary" onclick="stopSimulation()">Stop</button>
+        <button class="btn btn-info" onclick="changeSpeed()">Change speed</button>
+    </div>
+</div>
+
+<div class="row content">
+    <div class="col-md-4" id="familyCanvasDiv">
+        <canvas id="familyCanvas" width="380px" height="300px"></canvas>
+    </div>
+    <div class="col-md-4" id="wvCanvasDiv">
+        <canvas id="wvCanvas" width="380px" height="300px"></canvas>
+    </div>
+    <div class="col-md-4" id="dstCanvasDiv">
+        <canvas id="dstCanvas" width="380px" height="300px"></canvas>
+    </div>
+</div>
+</body>
+</html>
