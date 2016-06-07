@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="c3/c3.css">
+
     <script src="jquery-1.12.1.js"></script>
-    <link rel="stylesheet" href="bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="d3/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="c3/c3.min.js"></script>
     <script src="main.js"></script>
-    <script src="flot/jquery.flot.js"></script>
     <script src="paint.js"></script>
 </head>
 
@@ -18,35 +22,47 @@
     <div class="row">
         <div class="col-md-2">
             <div class="form-group">
-                <label for="speed">Speed [ms]:</label>
-                <input type="text" class="form-control" id="speed">
+                <label for="simulationDelay">Simulation delay [ms]:</label>
+                <input type="text" class="form-control" id="simulationDelay" value="300">
+                <button class="btn btn-info" onclick="changeSimulationDelay()">Change delay</button>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="gridWallPx">Box size [px]:</label>
+                <input type="text" class="form-control" id="gridWallPx" value="30">
             </div>
         </div>
     </div>
 
     <div class="row text-center">
         <button class="btn btn-primary" onclick="startSimulation()">Start new</button>
+        <button class="btn btn-primary" onclick="continueSimulation()">Continue</button>
         <button class="btn btn-primary" onclick="stopSimulation()">Stop</button>
-        <button class="btn btn-info" onclick="changeSpeed()">Change speed</button>
     </div>
 </div>
 
-<div class="row content center-block" style="width: 95%">
+<div class="row content center-block" style="width: 95%; padding-top: 10px">
     <div class="col-md-4 canvas-divs" id="familyCanvasDiv">
-        <div style="text-align: center">Family model</div>
+        <div style="text-align: center">Family model (the particles tends to minimize height)</div>
         <canvas id="familyCanvas" width="200px" height="300px"></canvas>
-        <div id="familyCanvasPlot"></div>
     </div>
     <div class="col-md-4 canvas-divs" id="wvCanvasDiv">
-        <div style="text-align: center">Wolf-Villain model</div>
+        <div style="text-align: center">Wolf-Villain model (the particles tends to have more neighbours)</div>
         <canvas id="wvCanvas" width="200px" height="300px"></canvas>
-        <div id="wvCanvasPlot"></div>
     </div>
     <div class="col-md-4 canvas-divs" id="dstCanvasDiv">
-        <div style="text-align: center">Das Sarma-Tamborenea model</div>
+        <div style="text-align: center">Das Sarma-Tamborenea model (the particles tends to move to corners)</div>
         <canvas id="dstCanvas" width="200px" height="300px"></canvas>
-        <div id="dstCanvasPlot"></div>
     </div>
+</div>
+
+<div class="row" style="text-align: center; padding-top: 5px">
+    Height standard deviation
+</div>
+<div id="modelsHeightStdPlotDiv" class="row content center-block" style="width: 95%">
+    <div id="modelsHeightStdPlot"></div>
 </div>
 
 </body>

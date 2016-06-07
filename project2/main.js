@@ -1,17 +1,15 @@
 
-function fitCanvasToParent(canvasId) {
-    var canvas = document.getElementById(canvasId);
-    var parent = document.getElementById(canvasId + "Div");
-    canvas.width = parent.offsetWidth - 20;
-    canvas.height = parent.offsetHeight;
-
-    var plotDiv = $('#' + canvasId + 'Plot');
-    plotDiv.height(300);
-    plotDiv.width(parent.offsetWidth - 20);
+function fitElementToParent(elementId) {
+    var element = document.getElementById(elementId);
+    var parent = document.getElementById(elementId + "Div");
+    element.width = parent.offsetWidth - 20;
+    element.height = parent.offsetHeight;
 }
 
 $(document).ready(function() {
-    fitCanvasToParent("familyCanvas");
-    fitCanvasToParent("wvCanvas");
-    fitCanvasToParent("dstCanvas");
+    fitElementToParent("familyCanvas");
+    fitElementToParent("wvCanvas");
+    fitElementToParent("dstCanvas");
+
+    fitElementToParent("modelsHeightStdPlot");
 });
