@@ -2,10 +2,7 @@ var stopCondition = false;
 var iterationDelay = 400;
 
 function gridPainter(canvasId, gridWallPx) {
-    //var canvasDiv = $("#" + canvasId + "Div");
     var canvas = $("#" + canvasId)[0];
-    console.log(canvas);
-    console.log("#" + canvasId);
     var ctx = canvas.getContext("2d");
 
     return {
@@ -23,20 +20,17 @@ function gridPainter(canvasId, gridWallPx) {
 
         strokeRect: function(x, y, color) {
             ctx.strokeStyle = color;
-            ctx.strokeRect(x * gridWallPx, y * gridWallPx, gridWallPx, gridWallPx);
+            ctx.strokeRect(1+x * gridWallPx, 1+y * gridWallPx, gridWallPx, gridWallPx);
         },
 
         fillRect: function(x, y, color) {
             ctx.fillStyle = color;
-            ctx.fillRect(x * gridWallPx, y * gridWallPx, gridWallPx, gridWallPx);
+            ctx.fillRect(1+x * gridWallPx, 1+y * gridWallPx, gridWallPx, gridWallPx);
         },
 
         drawGrid: function() {
-            var maxY = this.getMaxY();
-            var maxX = this.getMaxX();
-            for(var y=0; y<maxY; ++y)
-                for(var x=0; x<maxX; ++x)
-                    this.strokeRect(x, y, "black");
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(1, 1, this.getMaxX() * gridWallPx, this.getMaxY() * gridWallPx);
         }
     };
 }
@@ -80,6 +74,11 @@ function baseModel(gridPainter) {
     var boxMadeMove = true;
     var boxY;
     var boxX;
+
+    // stores vector of heights
+    var heights = new Array(maxX);
+    for (var x = 0; x < maxX; ++x)
+        heights[x] = 0;
 
     var map = new Array(maxY);
     for (var y = 0; y < maxY; ++y)
@@ -168,6 +167,7 @@ function baseModel(gridPainter) {
             map[boxY][boxX] = MAP_FIELD.CURRENT;
 
             boxMadeMove = true;
+            heights[boxX] = maxY - boxY;
         }
     };
 
@@ -231,9 +231,7 @@ function wvModel(gridPainter) {
         // -1 value means the block can't go left/right
         var neighboursAfterLeft = -1;
         var neighboursAfterRight = -1;
-        console.log(x);
-        console.log(map);
-        console.log(y);
+
         if (x != 0 && map[y][x - 1] == MAP_FIELD.NOTHING) {
             neighboursAfterLeft = 0;
             var posX = x - 1;
@@ -339,4 +337,8 @@ $(document).ready(function () {
         m.generateMap();
         m.simulate();
     }
+
+    $.plot($("#familyCanvasPlot"), [ [[0, 0], [1, 1]] ], { yaxis: { max: 1 } });
+    $.plot($("#wvCanvasPlot"), [ [[0, 0], [1, 1]] ], { yaxis: { max: 1 } });
+    $.plot($("#dstCanvasPlot"), [ [[0, 0], [1, 1]] ], { yaxis: { max: 1 } });
 });

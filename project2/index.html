@@ -5,12 +5,13 @@
     <link rel="stylesheet" href="bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="main.js"></script>
+    <script src="flot/jquery.flot.js"></script>
     <script src="paint.js"></script>
 </head>
 
 <body>
 <div class="container">
-    <h1>Projekt z Automatów Komórkowych - Model Nanoszenia Przypadkowego </h1>
+    <h1>Cellular Automata project - Model Nanoszenia Przypadkowego </h1>
 
     <h3>Autor: Dominik Czarnota</h3>
 
@@ -30,16 +31,23 @@
     </div>
 </div>
 
-<div class="row content">
-    <div class="col-md-4" id="familyCanvasDiv">
-        <canvas id="familyCanvas" width="380px" height="300px"></canvas>
+<div class="row content center-block" style="width: 95%">
+    <div class="col-md-4 canvas-divs" id="familyCanvasDiv">
+        <div style="text-align: center">Family model</div>
+        <canvas id="familyCanvas" width="200px" height="300px"></canvas>
+        <div id="familyCanvasPlot"></div>
     </div>
-    <div class="col-md-4" id="wvCanvasDiv">
-        <canvas id="wvCanvas" width="380px" height="300px"></canvas>
+    <div class="col-md-4 canvas-divs" id="wvCanvasDiv">
+        <div style="text-align: center">Wolf-Villain model</div>
+        <canvas id="wvCanvas" width="200px" height="300px"></canvas>
+        <div id="wvCanvasPlot"></div>
     </div>
-    <div class="col-md-4" id="dstCanvasDiv">
-        <canvas id="dstCanvas" width="380px" height="300px"></canvas>
+    <div class="col-md-4 canvas-divs" id="dstCanvasDiv">
+        <div style="text-align: center">Das Sarma-Tamborenea model</div>
+        <canvas id="dstCanvas" width="200px" height="300px"></canvas>
+        <div id="dstCanvasPlot"></div>
     </div>
 </div>
+
 </body>
 </html>
