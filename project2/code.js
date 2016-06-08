@@ -224,8 +224,7 @@ function baseModel(name, gridPainter, chart) {
     return obj;
 }
 
-// inheritance like
-//  model familiego - u mnie r=1 wiec patrzymy tylko w lewo i prawo, jesli jest mozliwosc spadniecia to spadamy
+//  Family model (the particles tends to minimize height)
 function familyModel(name, gridPainter, chart) {
     var model = baseModel(name, gridPainter, chart);
 
@@ -266,7 +265,7 @@ function familyModel(name, gridPainter, chart) {
     return model;
 }
 
-// model wolf vilian - liczba koordynacyjna oznacza liczbe sasiadow - idziemy tam gdzie bedzie najwiecej sasiadow
+// Wolf-Villain model (the particles tends to have more neighbours)
 function wvModel(name, gridPainter, chart) {
     var model = baseModel(name, gridPainter, chart);
 
@@ -278,52 +277,64 @@ function wvModel(name, gridPainter, chart) {
         var y = this.getBoxY();
         var x = this.getBoxX();
 
+        var neighboursNow = 0;
         // -1 value means the block can't go left/right
         var neighboursAfterLeft = -1;
         var neighboursAfterRight = -1;
 
-        if (x != 0 && map[y][x - 1] == MAP_FIELD.NOTHING) {
-            neighboursAfterLeft = 0;
-            var posX = x - 1;
-            var posY = this.getMaxYwithoutBox(posX);
+        if (x != 0)
+            if (map[y][x - 1] == MAP_FIELD.NOTHING) {
+                neighboursAfterLeft = 0;
+                var posX = x - 1;
+                var posY = this.getMaxYwithoutBox(posX);
 
-            if (posX != 0 && map[posY][posX - 1] == MAP_FIELD.BOX)
-                neighboursAfterLeft += 1;
-            if (map[posY][posX + 1] == MAP_FIELD.BOX)
-                neighboursAfterLeft += 1;
-        }
+                if (posX != 0 && map[posY][posX - 1] == MAP_FIELD.BOX)
+                    neighboursAfterLeft += 1;
+                if (map[posY][posX + 1] == MAP_FIELD.BOX)
+                    neighboursAfterLeft += 1;
+            }
+            else
+                neighboursNow += 1;
 
-        if (x != maxX - 1 && map[y][x + 1] == MAP_FIELD.NOTHING) {
-            neighboursAfterRight = 0;
-            var posX = x + 1;
-            var posY = this.getMaxYwithoutBox(posX);
+        if (x != maxX - 1)
+            if (map[y][x + 1] == MAP_FIELD.NOTHING) {
+                neighboursAfterRight = 0;
+                var posX = x + 1;
+                var posY = this.getMaxYwithoutBox(posX);
 
-            if (posX != maxX - 1 && map[posY][posX + 1] == MAP_FIELD.BOX)
-                neighboursAfterRight += 1;
-            if (map[posY][posX - 1] == MAP_FIELD.BOX)
-                neighboursAfterRight += 1;
-        }
+                if (posX != maxX - 1 && map[posY][posX + 1] == MAP_FIELD.BOX)
+                    neighboursAfterRight += 1;
+                if (map[posY][posX - 1] == MAP_FIELD.BOX)
+                    neighboursAfterRight += 1;
+            }
+            else
+                neighboursNow += 1;
 
-        var canGoLeft = neighboursAfterLeft > 0;
-        var canGoRight = neighboursAfterRight > 0;
+        var neighbours = [neighboursNow, neighboursAfterLeft, neighboursAfterRight];
 
-        if (canGoLeft && canGoRight)
-            x += Math.random() > 0.5 ? 1 : -1;
-        else if (canGoLeft)
+        var maxValue = Math.max.apply(null, neighbours);
+        var maxNeighboursAfterMoveIndexes = [];
+        for(var i=0; i<neighbours; ++i)
+            if (neighbours[i] == maxValue)
+                maxNeighboursAfterMoveIndexes.push(i);
+
+        var index = maxNeighboursAfterMoveIndexes[Math.floor(Math.random() * maxNeighboursAfterMoveIndexes.length)];
+
+        if (index == 0)
+            return;
+        else if (index == 1)
             x -= 1;
-        else if (canGoRight)
+        else if (index == 2)
             x += 1;
 
-        if (canGoLeft || canGoRight) {
-            this.setBoxX(x);
-            this.setBoxY(this.getMaxYwithoutBox(x));
-        }
+        this.setBoxX(x);
+        this.setBoxY(this.getMaxYwithoutBox(x));
     };
 
     return model;
 }
 
-// model das Sarmy-Tamborenea
+// Das Sarma-Tamborenea model (the particles tends to move to corners)
 function dstModel(name, gridPainter, chart) {
     var model = baseModel(name, gridPainter, chart);
 
@@ -338,34 +349,49 @@ function dstModel(name, gridPainter, chart) {
         // -1 value means the block can't go left/right
         var canGoLeft = false;
         var canGoRight = false;
+        var isInCorner = false;
 
-        if (x != 0 && map[y][x - 1] == MAP_FIELD.NOTHING) {
-            var posX = x - 1;
-            var posY = this.getMaxYwithoutBox(posX);
+        if (x != 0)
+            if (map[y][x - 1] == MAP_FIELD.NOTHING) {
+                var posX = x - 1;
+                var posY = this.getMaxYwithoutBox(posX);
 
-            if (posX != 0 && map[posY][posX - 1] == MAP_FIELD.BOX || map[posY][posX + 1] == MAP_FIELD.BOX)
-                canGoLeft = true;
-        }
+                if (posX != 0 && map[posY][posX - 1] == MAP_FIELD.BOX || map[posY][posX + 1] == MAP_FIELD.BOX)
+                    canGoLeft = true;
+            }
+            else
+                isInCorner = true;
 
-        if (x != maxX - 1 && map[y][x + 1] == MAP_FIELD.NOTHING) {
-            var posX = x + 1;
-            var posY = this.getMaxYwithoutBox(posX);
+        if (x != maxX - 1)
+            if (map[y][x + 1] == MAP_FIELD.NOTHING) {
+                var posX = x + 1;
+                var posY = this.getMaxYwithoutBox(posX);
 
-            if (posX != maxX - 1 && map[posY][posX + 1] == MAP_FIELD.BOX || map[posY][posX - 1] == MAP_FIELD.BOX)
-                canGoRight = true;
-        }
+                if (posX != maxX - 1 && map[posY][posX + 1] == MAP_FIELD.BOX || map[posY][posX - 1] == MAP_FIELD.BOX)
+                    canGoRight = true;
+            }
+            else
+                isInCorner = true;
 
-        if (canGoLeft && canGoRight)
-            x += Math.random() > 0.5 ? 1 : -1;
-        else if (canGoLeft)
+        var positionWithCorners = [];
+        if (isInCorner)
+            positionWithCorners.push(0);
+        if (canGoLeft)
+            positionWithCorners.push(1);
+        if (canGoRight)
+            positionWithCorners.push(2);
+
+        var index = positionWithCorners[Math.floor(Math.random() * positionWithCorners.length)];
+        console.log(index);
+        if (index == 0)
+            return;
+        else if (index == 1)
             x -= 1;
-        else if (canGoRight)
+        else if (index == 2)
             x += 1;
 
-        if (canGoLeft || canGoRight) {
-            this.setBoxX(x);
-            this.setBoxY(this.getMaxYwithoutBox(x));
-        }
+        this.setBoxX(x);
+        this.setBoxY(this.getMaxYwithoutBox(x));
     };
 
     return model;
@@ -393,8 +419,8 @@ function startSimulation() {
         }
     );
     models = [
-        familyModel('Family', gridPainter('familyCanvas', gridWallPx), chart),
-        wvModel('Wolf-Villain', gridPainter('wvCanvas', gridWallPx), chart),
+        //familyModel('Family', gridPainter('familyCanvas', gridWallPx), chart),
+        //wvModel('Wolf-Villain', gridPainter('wvCanvas', gridWallPx), chart),
         dstModel('Das Sarma-Tamborenea', gridPainter('dstCanvas', gridWallPx), chart)
     ];
 
@@ -427,3 +453,19 @@ function continueSimulation() {
         }
     }
 }
+
+
+function fitElementToParent(elementId) {
+    var element = document.getElementById(elementId);
+    var parent = document.getElementById(elementId + "Div");
+    element.width = parent.offsetWidth - 20;
+    element.height = parent.offsetHeight;
+}
+
+$(document).ready(function() {
+    fitElementToParent("familyCanvas");
+    fitElementToParent("wvCanvas");
+    fitElementToParent("dstCanvas");
+
+    fitElementToParent("modelsHeightStdPlot");
+});
