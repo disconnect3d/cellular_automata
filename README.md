@@ -33,3 +33,6 @@ Here is a simple mapping of those bits to the upper row setting:
 Here for "rule 70" bits 1, 2 and 6 are set.
 
 So for a given cell if upper left, upper and upper right cells form one of this combination: 001, 010, 110 - the cell is set. Otherwise it is not.
+
+## Project 2
+Project 2 is a simulation of granular material falling.
